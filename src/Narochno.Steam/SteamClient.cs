@@ -41,6 +41,15 @@ namespace Narochno.Steam
             return "?format=json" + (steamConfig.ApiKey.HasValue ? "&key=" + steamConfig.ApiKey.Value : string.Empty);
         }
 
+        public async Task<GetAppListResponse> GetAppList(CancellationToken ctx)
+        {
+            HttpResponseMessage response = await GetRetryPolicy().ExecuteAsync(() => httpClient.GetAsync(steamConfig.SteamUrl + "/ISteamApps/GetAppList/v0002/"));
+
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<GetAppListResponse>(await response.Content.ReadAsStringAsync(), serializerSettings);
+        }
+
         public async Task<GetNewsForAppResponse> GetNewsForApp(GetNewsForAppRequest request, CancellationToken ctx)
         {
             string queryParameters = GetBaseQuery() + "&appid=" + request.AppId;

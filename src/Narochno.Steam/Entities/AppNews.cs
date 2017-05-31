@@ -8,6 +8,6 @@ namespace Narochno.Steam.Entities
         [JsonProperty("appid")]
         public int AppId { get; set; }
         [JsonProperty("newsitems")]
-        public IList<NewsItem> NewsItems { get; set; }
+        public IList<NewsItem> NewsItems { get; set; } = new List<NewsItem>();
     }
 }

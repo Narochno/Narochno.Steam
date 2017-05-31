@@ -33,6 +33,14 @@ namespace Narochno.Steam.Tester
                 {
                     Console.WriteLine("{0} by {1}", item.Title, item.Author);
                 }
+
+                Console.ReadKey();
+
+                var apps = await steamClient.GetAppList();
+                foreach (var app in apps.AppList.Apps)
+                {
+                    Console.WriteLine(app.AppId + ": " + app.Name);
+                }
             }
 
             Console.ReadKey();

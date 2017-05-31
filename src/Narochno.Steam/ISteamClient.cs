@@ -7,6 +7,7 @@ namespace Narochno.Steam
 {
     public interface ISteamClient : IDisposable
     {
+        Task<GetAppListResponse> GetAppList(CancellationToken ctx = default(CancellationToken));
         Task<GetNewsForAppResponse> GetNewsForApp(GetNewsForAppRequest request, CancellationToken ctx = default(CancellationToken));
     }
 }
