@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>A simple Steam client, providing a C# wrapper around the default Steam web API.</Description>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <Authors>alanedwardes</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Narochno.Steam</AssemblyName>

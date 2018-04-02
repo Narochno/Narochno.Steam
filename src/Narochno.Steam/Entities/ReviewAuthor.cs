@@ -12,9 +12,11 @@ namespace Narochno.Steam.Entities
         [JsonProperty("num_reviews")]
         public uint NumReviews { get; set; }
         [JsonProperty("playtime_forever")]
-        public uint PlaytimeForever { get; set; }
+        internal uint PlaytimeForeverInternal { get; set; }
+        public TimeSpan PlayTimeForever => TimeSpan.FromMinutes(PlaytimeForeverInternal);
         [JsonProperty("playtime_last_two_weeks")]
-        public uint PlaytimeLastTwoWeeks { get; set; }
+        internal uint PlaytimeLastTwoWeeksInternal { get; set; }
+        public TimeSpan PlaytimeLastTwoWeeks => TimeSpan.FromMinutes(PlaytimeLastTwoWeeksInternal);
         [JsonProperty("last_played")]
         internal uint LastPlayedInternal { get; set; }
         public DateTimeOffset LastPlayed => DateTimeOffset.FromUnixTimeSeconds(LastPlayedInternal);
