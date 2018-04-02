@@ -8,8 +8,6 @@ var client = new ServiceCollection()
 	.BuildServiceProvider()
 	.GetService<ISteamClient>();
 
-var response = await client.GetReviews(new GetReviewsRequest(582890));
-
 var news = await client.GetNews(new GetNewsRequest(582890));
 Console.WriteLine("News for app {0}", news.AppNews.AppId);
 
