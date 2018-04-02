@@ -43,7 +43,7 @@ namespace Narochno.Steam
         {
             // https://partner.steamgames.com/doc/store/getreviews
             string url = $"http://store.steampowered.com/appreviews/{request.AppId}?json=1" +
-                $"&filter={request.ReviewType.ToString().ToLower()}" +
+                $"&filter={request.Filter.ToString().ToLower()}" +
                 $"&language={request.Language}" +
                 $"&review_type={request.ReviewType.ToString().ToLower()}" +
                 $"&purchase_type={request.PurchaseType.ToString().ToLower()}" +
