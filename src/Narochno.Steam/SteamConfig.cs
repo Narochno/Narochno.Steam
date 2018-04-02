@@ -1,9 +1,14 @@
-﻿using Narochno.Primitives;
+﻿using System.Net.Http;
 
 namespace Narochno.Steam
 {
-    public class SteamConfig
+    public sealed class SteamConfig
     {
+        /// <summary>
+        /// An HTTP client to use if pooling connections.
+        /// </summary>
+        public HttpClient HttpClient { get; set; } = new HttpClient();
+
         /// <summary>
         /// The Steam API URL
         /// </summary>
@@ -12,7 +17,7 @@ namespace Narochno.Steam
         /// <summary>
         /// The API key for the supplied user
         /// </summary>
-        public Optional<string> ApiKey { get; set; }
+        public string ApiKey { get; set; }
 
         /// <summary>
         /// The number of times requests will be retried 

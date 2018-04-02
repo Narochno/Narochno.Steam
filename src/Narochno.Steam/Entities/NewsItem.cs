@@ -1,5 +1,4 @@
-﻿using Narochno.Primitives;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Narochno.Steam.Entities
 {
@@ -14,7 +13,7 @@ namespace Narochno.Steam.Entities
         [JsonProperty("is_external_url")]
         public bool IsExternalUrl { get; set; }
         [JsonProperty("author")]
-        public Optional<string> Author { get; set; }
+        public string Author { get; set; }
         [JsonProperty("contents")]
         public string Contents { get; set; }
         [JsonProperty("feedlabel")]

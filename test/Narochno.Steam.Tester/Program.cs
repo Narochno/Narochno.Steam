@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Narochno.Steam.Entities;
+using Narochno.Steam.Entities.Requests;
 
 namespace Narochno.Steam.Tester
 {
@@ -21,26 +22,26 @@ namespace Narochno.Steam.Tester
 
         public static async Task DoWork()
         {
-            var provider = new ServiceCollection()
+            var client = new ServiceCollection()
                 .AddSteam(new SteamConfig())
-                .BuildServiceProvider();
+                .BuildServiceProvider()
+                .GetService<ISteamClient>();
 
-            using (var steamClient = provider.GetService<ISteamClient>())
+            var response = await client.GetReviews(new GetReviewsRequest(582890));
+
+            var news = await client.GetNews(new GetNewsRequest(582890));
+            Console.WriteLine("News for app {0}", news.AppNews.AppId);
+            foreach (var item in news.AppNews.NewsItems)
             {
-                var news = await steamClient.GetNewsForApp(new GetNewsForAppRequest(582890));
-                Console.WriteLine("News for app {0}", news.AppNews.AppId);
-                foreach (var item in news.AppNews.NewsItems)
-                {
-                    Console.WriteLine("{0} by {1}", item.Title, item.Author);
-                }
+                Console.WriteLine("{0} by {1}", item.Title, item.Author);
+            }
 
-                Console.ReadKey();
+            Console.ReadKey();
 
-                var apps = await steamClient.GetAppList();
-                foreach (var app in apps.AppList.Apps)
-                {
-                    Console.WriteLine(app.AppId + ": " + app.Name);
-                }
+            var apps = await client.GetApps();
+            foreach (var app in apps.AppList.Apps)
+            {
+                Console.WriteLine(app.AppId + ": " + app.Name);
             }
 
             Console.ReadKey();

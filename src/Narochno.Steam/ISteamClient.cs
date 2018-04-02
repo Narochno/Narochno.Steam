@@ -1,13 +1,14 @@
-﻿using Narochno.Steam.Entities;
-using System;
+﻿using Narochno.Steam.Entities.Requests;
+using Narochno.Steam.Entities.Responses;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Narochno.Steam
 {
-    public interface ISteamClient : IDisposable
+    public interface ISteamClient
     {
-        Task<GetAppListResponse> GetAppList(CancellationToken ctx = default(CancellationToken));
-        Task<GetNewsForAppResponse> GetNewsForApp(GetNewsForAppRequest request, CancellationToken ctx = default(CancellationToken));
+        Task<GetReviewsResponse> GetReviews(GetReviewsRequest request, CancellationToken token = default(CancellationToken));
+        Task<GetAppsResponse> GetApps(CancellationToken token = default(CancellationToken));
+        Task<GetNewsResponse> GetNews(GetNewsRequest request, CancellationToken token = default(CancellationToken));
     }
 }

@@ -11,7 +11,7 @@ namespace Narochno.Steam
         /// <returns>The passed service collection.</returns>
         public static IServiceCollection AddSteam(this IServiceCollection services)
         {
-            return services.AddSingleton<ISteamClient>(new SteamClient());
+            return services.AddSingleton<ISteamClient, SteamClient>().AddSingleton(new SteamConfig());
         }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace Narochno.Steam
         /// <returns>The passed service collection.</returns>
         public static IServiceCollection AddSteam(this IServiceCollection services, SteamConfig config)
         {
-            return services.AddSingleton<ISteamClient>(new SteamClient(config));
+            return services.AddSingleton(config).AddSingleton<ISteamClient, SteamClient>();
         }
     }
 }

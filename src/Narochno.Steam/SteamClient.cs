@@ -1,5 +1,4 @@
-﻿using Narochno.Primitives.Json;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading;
@@ -8,49 +7,57 @@ using System.Net;
 using Newtonsoft.Json.Converters;
 using Polly.Retry;
 using Polly;
-using Narochno.Steam.Entities;
+using Narochno.Steam.Entities.Responses;
+using Narochno.Steam.Entities.Requests;
 
 namespace Narochno.Steam
 {
-    public class SteamClient : ISteamClient
+    internal sealed class SteamClient : ISteamClient
     {
-        private readonly HttpClient httpClient = new HttpClient();
-        private readonly SteamConfig steamConfig;
+        private readonly SteamConfig config;
         private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
-            Converters = new JsonConverter[] { new OptionalJsonConverter(), new StringEnumConverter() }
+            Converters = new JsonConverter[] { new StringEnumConverter() }
         };
 
-        public SteamClient()
+        public SteamClient(SteamConfig config)
         {
-            steamConfig = new SteamConfig();
-        }
-
-        public SteamClient(SteamConfig steamConfig)
-        {
-            if (steamConfig == null)
-            {
-                throw new ArgumentNullException(nameof(steamConfig));
-            }
-
-            this.steamConfig = steamConfig;
+            this.config = config;
         }
 
         public string GetBaseQuery()
         {
-            return "?format=json" + (steamConfig.ApiKey.HasValue ? "&key=" + steamConfig.ApiKey.Value : string.Empty);
+            return "?format=json" + (string.IsNullOrWhiteSpace(config.ApiKey) ? string.Empty : "&key=" + config.ApiKey);
         }
 
-        public async Task<GetAppListResponse> GetAppList(CancellationToken ctx)
+        public async Task<GetAppsResponse> GetApps(CancellationToken token)
         {
-            HttpResponseMessage response = await GetRetryPolicy().ExecuteAsync(() => httpClient.GetAsync(steamConfig.SteamUrl + "/ISteamApps/GetAppList/v0002/"));
+            HttpResponseMessage response = await GetRetryPolicy().ExecuteAsync(() => config.HttpClient.GetAsync(config.SteamUrl + "/ISteamApps/GetAppList/v0002/", token));
 
             response.EnsureSuccessStatusCode();
 
-            return JsonConvert.DeserializeObject<GetAppListResponse>(await response.Content.ReadAsStringAsync(), serializerSettings);
+            return JsonConvert.DeserializeObject<GetAppsResponse>(await response.Content.ReadAsStringAsync(), serializerSettings);
         }
 
-        public async Task<GetNewsForAppResponse> GetNewsForApp(GetNewsForAppRequest request, CancellationToken ctx)
+        public async Task<GetReviewsResponse> GetReviews(GetReviewsRequest request, CancellationToken token)
+        {
+            // https://partner.steamgames.com/doc/store/getreviews
+            string url = $"http://store.steampowered.com/appreviews/{request.AppId}?json=1" +
+                $"&filter={request.ReviewType.ToString().ToLower()}" +
+                $"&language={request.Language}" +
+                $"&review_type={request.ReviewType.ToString().ToLower()}" +
+                $"&purchase_type={request.PurchaseType.ToString().ToLower()}" +
+                (request.DayRange.HasValue ? $"&day_range={request.DayRange.Value}" : string.Empty) +
+                (request.StartOffset.HasValue ? $"&start_offset={request.StartOffset.Value}" : string.Empty);
+
+            HttpResponseMessage response = await GetRetryPolicy().ExecuteAsync(() => config.HttpClient.GetAsync(url, token));
+
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<GetReviewsResponse>(await response.Content.ReadAsStringAsync(), serializerSettings);
+        }
+
+        public async Task<GetNewsResponse> GetNews(GetNewsRequest request, CancellationToken token)
         {
             string queryParameters = GetBaseQuery() + "&appid=" + request.AppId;
             if (request.EndDate.HasValue)
@@ -63,19 +70,17 @@ namespace Narochno.Steam
                 queryParameters += "&count=" + request.Count.Value;
             }
 
-            HttpResponseMessage response = await GetRetryPolicy().ExecuteAsync(() => httpClient.GetAsync(steamConfig.SteamUrl + "/ISteamNews/GetNewsForApp/v0002/" + queryParameters));
+            HttpResponseMessage response = await GetRetryPolicy().ExecuteAsync(() => config.HttpClient.GetAsync(config.SteamUrl + "/ISteamNews/GetNewsForApp/v0002/" + queryParameters, token));
 
             response.EnsureSuccessStatusCode();
 
-            return JsonConvert.DeserializeObject<GetNewsForAppResponse>(await response.Content.ReadAsStringAsync(), serializerSettings);
+            return JsonConvert.DeserializeObject<GetNewsResponse>(await response.Content.ReadAsStringAsync(), serializerSettings);
         }
 
         public RetryPolicy<HttpResponseMessage> GetRetryPolicy()
         {
             return Policy.HandleResult<HttpResponseMessage>(r => r.StatusCode >= HttpStatusCode.InternalServerError)
-                         .WaitAndRetryAsync(steamConfig.RetryAttempts, retryAttempt => TimeSpan.FromSeconds(Math.Pow(steamConfig.RetryBackoffExponent, retryAttempt)));
+                         .WaitAndRetryAsync(config.RetryAttempts, retryAttempt => TimeSpan.FromSeconds(Math.Pow(config.RetryBackoffExponent, retryAttempt)));
         }
-
-        public void Dispose() => httpClient.Dispose();
     }
 }
