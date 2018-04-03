@@ -6,11 +6,12 @@ namespace Narochno.Steam.Entities
     public class Review
     {
         [JsonProperty("recommendationid")]
-        public string RecommendationId { get; set; }
+        public uint RecommendationId { get; set; }
         [JsonProperty("author")]
         public ReviewAuthor Author { get; set; }
         [JsonProperty("language")]
-        public string Language { get; set; }
+        internal string LanguageInternal { get; set; }
+        public Language Language => Enum.TryParse<Language>(LanguageInternal, true, out var language) ? language : Language.Unknown;
         [JsonProperty("review")]
         public string Comment { get; set; }
         [JsonProperty("timestamp_created")]

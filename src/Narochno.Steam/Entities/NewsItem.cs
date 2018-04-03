@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace Narochno.Steam.Entities
 {
@@ -19,12 +20,13 @@ namespace Narochno.Steam.Entities
         [JsonProperty("feedlabel")]
         public string FeedLabel { get; set; }
         [JsonProperty("date")]
-        public long Date { get; set; }
+        internal long DateInternal { get; set; }
+        public DateTimeOffset Date => DateTimeOffset.FromUnixTimeSeconds(DateInternal);
         [JsonProperty("feedname")]
         public string FeedName { get; set; }
         [JsonProperty("feed_type")]
         public int FeedType { get; set; }
         [JsonProperty("appid")]
-        public int AppId { get; set; }
+        public uint AppId { get; set; }
     }
 }
